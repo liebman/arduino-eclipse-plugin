@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -52,10 +53,10 @@ import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 
 import io.sloeber.core.InternalBoardDescriptor;
+import io.sloeber.core.Messages;
 import io.sloeber.core.api.BoardDescriptor;
 import io.sloeber.core.api.CompileOptions;
 import io.sloeber.core.api.Defaults;
-import io.sloeber.core.api.Messages;
 import io.sloeber.core.api.Preferences;
 import io.sloeber.core.common.Common;
 import io.sloeber.core.common.ConfigurationPreferences;
@@ -66,7 +67,7 @@ import io.sloeber.core.managers.Library;
 import io.sloeber.core.managers.Tool;
 import io.sloeber.core.managers.ToolDependency;
 
-@SuppressWarnings("nls")
+@SuppressWarnings({"nls","unused"})
 /**
  * ArduinoHelpers is a static class containing general purpose functions
  *
@@ -74,7 +75,7 @@ import io.sloeber.core.managers.ToolDependency;
  *
  */
 public class Helpers extends Common {
-	private static final String ARDUINO_CORE_BUILD_FOLDER_NAME = "core";
+	
 
 	private static final String ENV_KEY_BUILD_ARCH = ERASE_START + "BUILD.ARCH";
 	private static final String ENV_KEY_BUILD_GENERIC_PATH = ERASE_START + "BUILD.GENERIC.PATH";
@@ -84,6 +85,13 @@ public class Helpers extends Common {
 	private static final String ENV_KEY_JANTJE_MAKE_LOCATION = ENV_KEY_JANTJE_START + "MAKE_LOCATION";
 
 	private static final String MENU_KEY = "menu.";
+
+	private static final String PROJECT = Messages.PROJECT;
+	private static final String CONFIG = Messages.CONFIG;
+	private static final String FILE = Messages.FILE;
+	private static final String BOARDID = Messages.BOARDID;
+	private static final String KEY = Messages.KEY;
+	private static final String FOLDER = Messages.FOLDER;
 
 	private static boolean myHasBeenLogged=false;
 
@@ -212,7 +220,7 @@ public class Helpers extends Common {
 			createNewFolder(project, target.toString(), source);
 		} catch (CoreException e) {
 			Common.log(
-					new Status(IStatus.ERROR, Const.CORE_PLUGIN_ID, Messages.Helpers_Create_folder_failed + target, e));
+					new Status(IStatus.ERROR, Const.CORE_PLUGIN_ID, Messages.Helpers_Create_folder_failed.replace(FOLDER, target.toString()), e));
 		}
 	}
 
@@ -388,15 +396,15 @@ public class Helpers extends Common {
 
 		IPath corePath = boardDescriptor.getActualCoreCodePath();
 		if(corePath!=null) {
-		addCodeFolder(project, corePath, ARDUINO_CODE_FOLDER_NAME + '/' + ARDUINO_CORE_BUILD_FOLDER_NAME,
+		addCodeFolder(project, corePath, ARDUINO_CODE_FOLDER_PATH,
 				configurationDescription,true);
 		IPath variantPath = boardDescriptor.getActualVariantPath();
 		if (variantPath == null) {
 			// remove the existing link
-			Helpers.removeCodeFolder(project, ARDUINO_CODE_FOLDER_NAME + "/variant");
+			Helpers.removeCodeFolder(project, ARDUINO_VARIANT_FOLDER_PATH);
 		} else {
 			IPath redirectVariantPath = boardDescriptor.getActualVariantPath();
-			Helpers.addCodeFolder(project, redirectVariantPath, ARDUINO_CODE_FOLDER_NAME + "/variant",
+			Helpers.addCodeFolder(project, redirectVariantPath, ARDUINO_VARIANT_FOLDER_PATH,
 					configurationDescription,false);
 		}
 		}
@@ -479,7 +487,7 @@ public class Helpers extends Common {
 
 		if (Platform.getOS().equals(Platform.OS_WIN32)) {
 			setBuildEnvironmentVariable(contribEnv, confDesc, ENV_KEY_JANTJE_MAKE_LOCATION,
-					ConfigurationPreferences.getMakePath().toString() + '/');
+					ConfigurationPreferences.getMakePath().toOSString() + File.separator);
 		}
 
 
@@ -537,10 +545,10 @@ public class Helpers extends Common {
 			}
 		} catch (FileNotFoundException e) {
 			Common.log(new Status(IStatus.ERROR, Const.CORE_PLUGIN_ID,
-					Messages.Helpers_Error_parsing + envVarFile.toString() + Messages.Helpers_File_does_not_exists, e));
+					Messages.Helpers_Error_parsing_IO_exception.replace(FILE, envVarFile.toString()), e));
 		} catch (IOException e) {
 			Common.log(new Status(IStatus.ERROR, Const.CORE_PLUGIN_ID,
-					Messages.Helpers_Error_parsing + envVarFile.toString() + Messages.Helpers_IO_exception, e));
+					Messages.Helpers_Error_File_does_not_exists.replace(FILE, envVarFile.toString()) , e));
 		}
 	}
 
@@ -567,11 +575,9 @@ public class Helpers extends Common {
 		Map<String, String> boardSectionMap = boardsFile.getSection(boardID);
 		if (boardSectionMap == null) {
 			if (warn) {
-				Common.log(new Status(IStatus.INFO, Const.CORE_PLUGIN_ID,
-						Messages.Helpers_The_project + confDesc.getProjectDescription().getProject().getName()
-								+ Messages.Helpers_Invalid_boards_config + confDesc.getName()
-								+ Messages.Helpers_boards_file + boardsFile.getTxtFile().toString()
-								+ Messages.Helpers_Boards_id + boardID));
+				String error=Messages.Helpers_error_boards_TXT.replace(PROJECT,  confDesc.getProjectDescription().getProject().getName()).replaceAll(CONFIG, confDesc.getName())
+						.replaceAll(FILE,  boardsFile.getTxtFile().toString()).replaceAll(BOARDID, boardID);
+				Common.log(new Status(IStatus.INFO, Const.CORE_PLUGIN_ID,error));
 			}
 			return;
 		}
@@ -643,7 +649,7 @@ public class Helpers extends Common {
 										+ tool.getVersion() + " Installpath is null"));
 					}
 				} else {
-					String valueString = new Path(theTool.getInstallPath().toString()).toString();
+					String valueString = theTool.getInstallPath().toOSString();
 					setBuildEnvironmentVariable(contribEnv, confDesc, keyString, valueString);
 					keyString = MakeKeyString("runtime.tools." + tool.getName() + tool.getVersion() + ".path");
 					setBuildEnvironmentVariable(contribEnv, confDesc, keyString, valueString);
@@ -831,7 +837,7 @@ public class Helpers extends Common {
 			switch (recipeParts.length) {
 			case 0:
 				setBuildEnvironmentVariable(contribEnv, confDesc, recipeKey + DOT + '1',
-						Messages.Helpers_No_command_for + recipeKey);
+						"echo no command for \"{KEY}\".".replace(KEY, recipeKey));
 				break;
 			case 1:
 				setBuildEnvironmentVariable(contribEnv, confDesc, recipeKey + DOT + '1', recipeParts[0]);
@@ -870,6 +876,8 @@ public class Helpers extends Common {
 				// as I'm not, therefore I mod the tools in the command to be
 				// FQN
 				if (name.startsWith("A.TOOLS.")) {
+					String skipVars[]={"A.NETWORK.PASSWORD","A.NETWORK.PORT"};
+					List<String> skipVarslist=Arrays.asList(skipVars);
 					String toolID = curVariable.getName().split("\\.")[2];
 					String recipe = curVariable.getValue();
 					int indexOfVar = recipe.indexOf("${A.");
@@ -879,8 +887,10 @@ public class Helpers extends Common {
 							String foundSuffix = recipe.substring(indexOfVar + 3, endIndexOfVar);
 							String foundVar = "A" + foundSuffix;
 							String replaceVar = "A.TOOLS." + toolID.toUpperCase() + foundSuffix;
+							if( !skipVarslist.contains(foundVar)) {
 							if (contribEnv.getVariable(foundVar, confDesc) == null) {// $NON-NLS-1$
 								recipe = recipe.replaceAll(foundVar, replaceVar);
+							}
 							}
 						}
 						indexOfVar = recipe.indexOf("${A.", indexOfVar + 4);
@@ -924,11 +934,42 @@ public class Helpers extends Common {
 		Collections.sort(objcopyCommand);
 		setBuildEnvironmentVariable(contribEnv, confDesc, "JANTJE.OBJCOPY", StringUtil.join(objcopyCommand, "\n\t"));
 
+		//handle the hooks
+		setHookBuildEnvironmentVariable(contribEnv, confDesc, "A.JANTJE.PRE.LINK","A.RECIPE.HOOKS.LINKING.PRELINK.XX.PATTERN",false);
+		setHookBuildEnvironmentVariable(contribEnv, confDesc, "A.JANTJE.POST.LINK","A.RECIPE.HOOKS.LINKING.POSTLINK.XX.PATTERN",true);
+		setHookBuildEnvironmentVariable(contribEnv, confDesc, "A.JANTJE.PREBUILD","A.RECIPE.HOOKS.PREBUILD.XX.PATTERN",false);
+		setHookBuildEnvironmentVariable(contribEnv, confDesc, "A.JANTJE.SKETCH.PREBUILD","A.RECIPE.HOOKS.SKETCH.PREBUILD.XX.PATTERN",false);
+		setHookBuildEnvironmentVariable(contribEnv, confDesc, "A.JANTJE.SKETCH.POSTBUILD","A.RECIPE.HOOKS.SKETCH.POSTBUILD.XX.PATTERN",false);
+		
+
 	}
 
 
 
-	/**
+    private static void setHookBuildEnvironmentVariable(IContributedEnvironment contribEnv,
+            ICConfigurationDescription confDesc, String varName, String hookName, boolean post) {
+        String envVarString = new String();
+        String postSeparator = "}\n\t";
+        String preSeparator = "${";
+        if (post) {
+            postSeparator = "${";
+            preSeparator = "}\n\t";
+        }
+        for (int numDigits = 1; numDigits <= 2; numDigits++) {
+            int counter = 1;
+            String hookVarName = hookName.replace("XX",
+                    String.format("%0" + Integer.toString(numDigits) + "d", new Integer(counter)));
+            while (!getBuildEnvironmentVariable(confDesc, hookVarName, "", true).isEmpty()) {
+                envVarString = envVarString + preSeparator + hookVarName + postSeparator;
+                hookVarName = hookName.replace("XX",
+                        String.format("%0" + Integer.toString(numDigits) + "d", new Integer(++counter)));
+            }
+            if (!envVarString.isEmpty()) {
+                setBuildEnvironmentVariable(contribEnv, confDesc, varName, envVarString);
+            }
+        }
+    }
+    /**
 	 * When parsing boards.txt and platform.txt some processing needs to be done to
 	 * get "acceptable environment variable values" This method does the parsing
 	 * {xx} is replaced with ${XX} if to uppercase is true {xx} is replaced with
@@ -939,10 +980,7 @@ public class Helpers extends Common {
 	 * @return the string to be stored as value for the environment variable
 	 */
 	public static String MakeEnvironmentString(String inputString, String keyPrefix, boolean touppercase) {
-		// String ret = inputString.replaceAll("-o \"\\{object_file}\"",
-		// "").replaceAll("\"\\{object_file}\"",
-		// "").replaceAll("\"\\{source_file}\"", "")
-		// .replaceAll("\\{", "\\${" + ArduinoConst.ENV_KEY_START);
+		try {
 		String ret = inputString.replaceAll("\\{(?!\\{)", "\\${" + keyPrefix);
 		if (!touppercase) {
 			return ret;
@@ -955,7 +993,12 @@ public class Helpers extends Common {
 			String buf = sb.substring(matcher.start(), matcher.end()).toUpperCase();
 			sb.replace(matcher.start(), matcher.end(), buf);
 		}
-		return sb.toString();
+		return sb.toString();}
+		catch (Exception e){
+			Common.log(new Status(IStatus.ERROR, Const.CORE_PLUGIN_ID,
+					"Failed to parse environment var "+inputString, e));
+			return inputString;
+		}
 	}
 
 	/**
@@ -1007,7 +1050,7 @@ public class Helpers extends Common {
 				buildFolder.delete(true, null);
 			} catch (CoreException e) {
 				Common.log(new Status(IStatus.ERROR, Const.CORE_PLUGIN_ID,
-						Messages.Helpers_delete_folder_failed + cfgDescription.getName(), e));
+						Messages.Helpers_delete_folder_failed.replace(FOLDER, cfgDescription.getName()), e));
 			}
 		}
 
@@ -1072,7 +1115,7 @@ public class Helpers extends Common {
 		if (a == null) {
 			if(!myHasBeenLogged) {
 			Common.log(new Status(IStatus.INFO, Const.CORE_PLUGIN_ID,
-					Messages.Helpers_link_folder + source + Messages.Helpers_is_empty, null));
+					Messages.Helpers_error_link_folder_is_empty.replace(FILE, source.toOSString()), null));
 			myHasBeenLogged=true;
 			}
 			return;

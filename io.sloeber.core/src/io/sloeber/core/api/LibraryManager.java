@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -26,6 +27,7 @@ import org.eclipse.core.runtime.Status;
 import com.google.gson.Gson;
 
 import io.sloeber.core.Activator;
+import io.sloeber.core.Messages;
 import io.sloeber.core.common.Common;
 import io.sloeber.core.common.ConfigurationPreferences;
 import io.sloeber.core.common.InstancePreferences;
@@ -50,6 +52,7 @@ public class LibraryManager {
 	private static final String LIBRARY_PATH_SUFFIX = "libraries"; //$NON-NLS-1$
 	private static final String LIBRARY_DESCRIPTOR_PREFIX = "Library"; //$NON-NLS-1$
 	private static final String EXAMPLE_DESCRIPTOR_PREFIX = "Example"; //$NON-NLS-1$
+	private static final String FILE = Messages.FILE;
 
 	static private List<LibraryIndex> libraryIndices;
 	private static IInstallLibraryHandler myInstallLibraryHandler = new DefaultInstallHandler();
@@ -285,7 +288,7 @@ public class LibraryManager {
 		if (libindex == null)
 			return;
 
-		for (String library : Defaults.INSTALLED_LIBRARIES) {
+		for (String library : Defaults.DEFAULT_INSTALLED_LIBRARIES) {
 			Library toInstalLib = libindex.getLatestLibrary(library);
 			if (toInstalLib != null) {
 				toInstalLib.install(monitor);
@@ -310,10 +313,25 @@ public class LibraryManager {
 			libraryIndices.add(index);
 		} catch (Exception e) {
 			Common.log(new Status(IStatus.ERROR, Activator.getId(),
-					Messages.Manager_Failed_to_parse.replace("${FILE}", jsonFile.getAbsolutePath()), e)); //$NON-NLS-1$
+					Messages.Manager_Failed_to_parse.replace(FILE, jsonFile.getAbsolutePath()), e)); 
 			jsonFile.delete();// Delete the file so it stops damaging
 		}
 	}
+	
+	   /**
+     * install 1 single library based on the library name
+     * @param libName
+     */
+    public static void installLibrary(String libName) {
+        Set<String> libNamesToInstall = new TreeSet<>();
+        libNamesToInstall.add(libName);
+        Map<String, LibraryDescriptor> libsToInstall = LibraryManager.getLatestInstallableLibraries(libNamesToInstall);
+        if (!libsToInstall.isEmpty()) {
+            for (Entry<String, LibraryDescriptor> curLib : libsToInstall.entrySet()) {
+                curLib.getValue().toLibrary().install(new NullProgressMonitor());
+            }
+        }
+    }
 
 	/**
 	 * Install the latest version of all the libraries belonging to this category If
@@ -573,5 +591,6 @@ public class LibraryManager {
 
 		return examples;
 	}
+
 
 }

@@ -5,6 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import io.sloeber.providers.Adafruit;
+import io.sloeber.providers.Arduino;
+import io.sloeber.providers.ESP32;
+import io.sloeber.providers.Teensy;
+
 @SuppressWarnings("nls")
 public class Libraries {
 
@@ -36,6 +41,9 @@ public class Libraries {
 				"avdweb_SAMDtimer",
 				//uses unknown lib CurieBLE
 				"Andee101",
+				//uses unknonw lib ThingerESP8266
+				"ClimaStick",
+
 				//this fails in the combiner on windows for some strange reason.
 				//I think it is a windows command line limitation again
 				"ANTPLUS-Arduino",
@@ -46,7 +54,52 @@ public class Libraries {
 				//missing httpclient
 				"ArduinoFritzApi",
 				//uncomment something in my own library to make it work... are you kidding?
-				"DCCpp"};
+				"DCCpp",
+				"Commanders",
+				//Macro defenitions of setup and loop confusing the ino.cpp converter
+				"ArduinoLang",
+				//all kind of issue
+				"ArduinoOSC",
+				//usage of macro's confusing ino to cpp converter
+				"AUnit"	,
+				//contains REPLACE_ME
+				"CayenneLPP",
+				//uses unknown lib powerbank
+				"Charge_n_Boost",
+				//uses mbino that uses SPI but has SPI included so
+				//indexer thinks SPI is defines but utilities is not in include path
+				"CarreraDigitalControlUnit",
+				//I don't know which hardware to take for this lib
+				"CoDrone",
+				//uses a define that is not defined
+				"DcDccNanoController",
+				//requires Paul Stoffregens time lib and Sloeber takes arduino time lib
+				"DS3232RTC",
+				//Cloud4RPi.cpp:179:5: error: 'DynamicJsonBuffer' was not declared in this scope
+				"cloud4rpi-esp-arduino",
+				//not sure what is wrong. Don't feel like looking
+				"AceRoutine",
+				//source is in scr instead of src
+				"ADC_SEQR",
+				//uses StaticJsonBuffer I do not have
+				"AmazonDRS",
+				//to complicated board selection
+				"Adafruit_DAP_library",
+				//fails as if wrong board tried zero and feater MO
+				"Adafruit_Zero_I2S_Library",
+				//to hard to assign boards correctly
+				"ArduinoBearSSL",
+				// call of overloaded 'requestFrom(uint8_t, size_t, bool)' is ambiguous
+				"ArduinoECCX08",
+				//getRequest.ino:29:45: error: no matching function for call to 'ESPAT::get(const char [16])'
+				"ArduinoESPAT",
+				//ESPAsyncE131.h:23:25: fatal error: ESPAsyncUDP.h: No such file or directory
+				"ESP_Async_E1.31",
+				//doesn't work in arduino ide
+				"AIOModule",
+				//ned to fix issue
+				"Blynk_For_Chinese",
+				};
 		return Arrays.asList(skipLibs).contains(libName);
 	}
 
@@ -62,10 +115,10 @@ public class Libraries {
 		// ret.wire1 = wire1 && andd.wire1;
 		// ret.inputPullDown = inputPullDown && andd.inputPullDown;
 		// ret.teensy = teensy && andd.teensy;
-		ret.worksOutOfTheBox = doNotUseThisLib(libName);
+		ret.worksOutOfTheBox =! doNotUseThisLib(libName);
 		ret.mo_mcu = mo_mcu(libName);
 		ret.esp8266_mcu = esp8266_mcu(libName);
-		ret.boardID = getRequiredBoard(libName);
+		ret.boardName = getRequiredBoard(libName);
 		return ret;
 	}
 
@@ -74,7 +127,7 @@ public class Libraries {
 	 */
 	private static boolean mo_mcu(String libName) {
 		String theLibs[] = new String[] { "Adafruit_composite_video_Library", "Adafruit_DMA_neopixel_library",
-				"Adafruit_DAP_library","Adafruit_FreeTouch_Library" ,"Adafruit_mp3"};
+			"Adafruit_FreeTouch_Library" };
 		return Arrays.asList(theLibs).contains(libName);
 	}
 
@@ -82,11 +135,12 @@ public class Libraries {
 	 * esp8266 libraries
 	 */
 	private static boolean esp8266_mcu(String libName) {
-		String theLibs[] = new String[] { "Adafruit_ESP8266" ,"BoodskapTransceiver"};
+		String theLibs[] = new String[] { "Adafruit_ESP8266" ,"BoodskapTransceiver","AutoConnect","ClimaStick","CMMC_Interval","ConfigManager","CoogleIOT","CTBot"};
 		return Arrays.asList(theLibs).contains(libName);
 	}
 
 	private static String getRequiredBoard(String libName) {
+		if(libName==null)return null;
 
 		Map<String, String[]> runLibOnBoard = new HashMap<>();
 
@@ -98,28 +152,34 @@ public class Libraries {
 				new String[] { "DS1307RTC", "ESPMail", "EspSaveCrash", "FlashStorage", "Fram", "Geometry" });
 		runLibOnBoard.put("macro's confuse indexer", new String[] { "EnableInterrupt", "Eventually" });
 
-		runLibOnBoard.put("uno",
+		runLibOnBoard.put(Arduino.unoID,
 				new String[] { "A4963", "Adafruit_Motor_Shield_library", "Adafruit_Motor_Shield_library_V2",
 						"AccelStepper", "Arduino_Uno_WiFi_Dev_Ed_Library", "ardyno", "AVR_Standard_C_Time_Library",
 						"DDS", "EtherSia", "ExodeCore", "FingerLib", "HamShield" });
 		runLibOnBoard.put("esplora", new String[] { "Esplora" });
-		runLibOnBoard.put("circuitplay32u4cat",
-				new String[] { "Adafruit_Circuit_Playground", "Adafruit_BluefruitLE_nRF51", "Adafruit_GPS_Library" });
+		runLibOnBoard.put(Arduino.circuitplay32ID,
+				new String[] { "Adafruit_Circuit_Playground", "Adafruit_BluefruitLE_nRF51", "Adafruit_GPS_Library","Adafruit_composite_video_Library" });
 		runLibOnBoard.put("nodemcu",
 				new String[] { "Adafruit_IO_Arduino", "CMMC_Easy", "CMMC_MQTT_Connector", "CMMC_OTA",
 						"CMMC_WiFi_Connector", "EasyUI", "EasyDDNS", "CoinMarketCapApi", "ArduinoIHC", "AsciiMassage",
 						"ESPiLight", "HaLakeKit", "HaLakeKitFirst","AFArray" ,"AIOModule","AlertMe","Bleeper","Blinker"});
-		runLibOnBoard.put("feather52", new String[] { "Firmata" });
+		runLibOnBoard.put("feather52", new String[] { "Firmata" ,"Codec2"});
 		runLibOnBoard.put("primo", new String[] { "Adafruit_BluefruitLE_nRF51", "arduino-NVM" });
-		runLibOnBoard.put("mega", new String[] { "Adafruit_GPS_Library", "Dynamixel_Servo", "EnergyBoard" });
+		runLibOnBoard.put("mega", new String[] { "Adafruit_GPS_Library", "Dynamixel_Servo", "EnergyBoard" ,"DFL168A_Async"});
 		runLibOnBoard.put("zero",
 				new String[] { "Arduino_Low_Power", "ArduinoSound", "AudioZero", "Dimmer_class_for_SAMD21",
 						"AzureIoTHub", "AzureIoTProtocol_HTTP", "AzureIoTProtocol_MQTT", "Adafruit_AM_radio_library" });
 		runLibOnBoard.put("mkrfox1200", new String[] { "Arduino_SigFox_for_MKRFox1200" });
 		runLibOnBoard.put("due",
-				new String[] { "Audio", "AutoAnalogAudio", "dcf77_xtal", "due_can", "DueFlashStorage", "DueTimer" });
+				new String[] { "Audio", "AutoAnalogAudio", "dcf77_xtal", "due_can", "DueFlashStorage", "DueTimer"});
 		runLibOnBoard.put("espresso_lite_v2", new String[] { "ESPert", "ESPectro" });
-		runLibOnBoard.put("esp32", new String[] { "EasyBuzzer_Beep_leonardo", "ESPUI","Basecamp" });
+		runLibOnBoard.put(ESP32.esp32ID, new String[] { "EasyBuzzer_Beep_leonardo", "ESPUI","Basecamp" });
+		runLibOnBoard.put(Teensy.Teensy3_6_ID, new String[] { "ACAN","ACAN2515","ACAN2517" });
+		
+		runLibOnBoard.put(Adafruit.metroM4ID, new String[] { "Adafruit_QSPI" ,"Adafruit_mp3"});
+		runLibOnBoard.put(Arduino.ethernetID, new String[] { "Blynk_For_Chinese" });
+		 
+		
 		for (Entry<String, String[]> curEntry : runLibOnBoard.entrySet()) {
 			if (Arrays.asList(curEntry.getValue()).contains(libName)) {
 				return curEntry.getKey();

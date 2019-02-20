@@ -4,11 +4,12 @@ import java.util.LinkedList;
 
 import org.eclipse.core.runtime.IPath;
 
+import io.sloeber.providers.ESP32;
 import io.sloeber.providers.MCUBoard;
+import io.sloeber.providers.Teensy;
 
 @SuppressWarnings("nls")
 public class Examples {
-
 	private String myFQN;
 	private String myLibName;
 	private IPath myPath;
@@ -19,13 +20,10 @@ public class Examples {
 		return myRequiredBoardAttributes;
 	}
 
-	public Examples(String fqn, String libName, IPath path) {
+	public Examples(String fqn, IPath path) {
 		myFQN = fqn;
-		myLibName = libName;
 		myPath = path;
-		if (myLibName == null) {
-			getLibNameFromPath();
-		}
+		getLibNameFromPath();
 		myRequiredBoardAttributes = new BoardAttributes();
 		myRequiredBoardAttributes.serial = examplesUsingSerial().contains(myFQN);
 		myRequiredBoardAttributes.serial1 = examplesUsingSerial1().contains(myFQN);
@@ -36,11 +34,11 @@ public class Examples {
 		myRequiredBoardAttributes.wire1 = examplesUsingWire1().contains(myFQN);
 		myRequiredBoardAttributes.midi = examplesUsingMidi().contains(myFQN) || myFQN.contains("USB_MIDI");
 		myRequiredBoardAttributes.teensy = myFQN.startsWith("Example/Teensy");
-		myRequiredBoardAttributes.worksOutOfTheBox = failingExamples().contains(myFQN);
-		myRequiredBoardAttributes.boardID = getRequiredBoardID(myFQN);
+		myRequiredBoardAttributes.worksOutOfTheBox = !failingExamples().contains(myFQN);
+		myRequiredBoardAttributes.boardName = getRequiredBoardID(myFQN);
 		myRequiredBoardAttributes.mo_mcu = examplesUsingMCUmo().contains(fqn);
-		myRequiredBoardAttributes = myRequiredBoardAttributes.and(Libraries.getRequiredBoardAttributes(getLibName()));
-
+		myRequiredBoardAttributes.rawHID = myFQN.contains("USB_RawHID");
+		myRequiredBoardAttributes = myRequiredBoardAttributes.or(Libraries.getRequiredBoardAttributes(getLibName()));
 	}
 
 	private void getLibNameFromPath() {
@@ -51,7 +49,6 @@ public class Examples {
 				myLibName = splits[1];
 			}
 		}
-
 	}
 
 	public IPath getPath() {
@@ -72,8 +69,7 @@ public class Examples {
 
 	private static LinkedList<String> examplesUsingMidi() {
 		LinkedList<String> myUsesMidiExampleList = new LinkedList<>();
-		myUsesMidiExampleList.add("Example/Teensy/USB_FlightSim/ThrottleServo");
-
+		// myUsesMidiExampleList.add("Example/Teensy/USB_FlightSim/ThrottleServo");
 		return myUsesMidiExampleList;
 	}
 
@@ -103,7 +99,6 @@ public class Examples {
 		ret.add("Example/09.USB/Mouse/ButtonMouseControl");
 		ret.add("Example/09.USB/Mouse/JoystickMouseControl");
 		ret.add("Example/09.USB/KeyboardAndMouseControl");
-
 		return ret;
 	}
 
@@ -191,13 +186,13 @@ public class Examples {
 		ret.add("Example/Teensy/USB_Joystick/Complete");
 		ret.add("Example/Teensy/USB_RawHID/Basic");
 		ret.add("Library/Adafruit_BME280_Library/advancedsettings");
+		ret.add("Library/AS3935MI/AS3935MI_LightningDetector_otherInterfaces");
 		return ret;
 	}
 
 	private static LinkedList<String> examplesUsingMCUmo() {
 		LinkedList<String> ret = new LinkedList<>();
 		ret.add("Library/Adafruit_Circuit_Playground/CircuitPlaygroundFirmata_Express_CodeOrg");
-
 		return ret;
 	}
 
@@ -212,7 +207,6 @@ public class Examples {
 		 * generate a error because the enum is not defined. The examples below fail due
 		 * to this
 		 */
-
 		ret.add("Library/_2020Bot_Library/_2020Bot_Demo");
 		// These examples are the processing part and are not a deal of sloeber
 		ret.add("Library/Adafruit_BNO055/bunny/processing/cuberotate");
@@ -233,7 +227,6 @@ public class Examples {
 		ret.add("Library/Accessory/Shield/OLED/example/Adafruit");
 		ret.add("Library/Accessory/Shield/temp/humidity/oled");
 		// at the time of testing there were case sensetivity issues
-
 		ret.add("Library/AutoAnalogAudio/SDAudio/SdAudioRecording");
 		ret.add("Library/AutoAnalogAudio/SDAudio/SdAudioWavPlayer");
 		ret.add("Library/AutoAnalogAudio/AudioRadioRelay");
@@ -263,17 +256,31 @@ public class Examples {
 		ret.add("Library/ANT-Arduino/NativeAnt");
 		// uses missing library MobileBLE
 		ret.add("Library/ArduinoBlue/differentialDriveCar");
-		// defining struct in ino file
+		// defining struct/enum in ino file
 		ret.add("Library/ArduinoJson/JsonConfigFile");
+		ret.add("Library/Arduboy2/RGBled");
 		// error: no matching function for call to 'aREST_UI::addToBuffer(const char
 		ret.add("Library/aREST_UI/ESP8266");
 		ret.add("Library/aREST_UI/WiFi_CC3000");
 		ret.add("Library/aREST_UI/WildFire");
-		//uses arduinoWIFI
+		// uses arduinoWIFI
 		ret.add("Library/Braccio/braccioOfUnoWiFi");
-
-
+		// uses lib that does not has lib folder= include-.h
+		ret.add("Library/ArduinoCloud/SimpleCloudButtonYun");
+		// usi!ng non exsisting methods
+		ret.add("Library/CAN-BUS_Shield/gpioRead");
+		ret.add("Library/CAN-BUS_Shield/gpioWrite");
+		// using defines inino file to generate functions (not supported in Sloeber)
+		ret.add("Library/Adafruit_VEML6070_Library/unittests");
+		// uses a non existing header
+		ret.add("Library/AESLib/complex");
+		// using wrong sdfat librarie
+		ret.add("Library/Arduino_OPL2_SimpleTone");
+		ret.add("Library/Arduino_OPL2_Teensy_PlayDRO");
+		ret.add("Library/Arduino_OPL2_Teensy_PlayIMF");
 		// I don't recall why following examples didn't work
+		ret.add("Library/arduino_ess_ess_yun");
+		ret.add("Library/arduino_ess_linkit_one_dweet");
 		ret.add("Library/AD7193/AD7193_VoltageMeasurePsuedoDifferential_Example");
 		ret.add("Library/bunny_cuberotate/cuberotate");
 		ret.add("Library/XPT2046_Touchscreen/ILI9341Test");
@@ -293,7 +300,6 @@ public class Examples {
 		ret.add("Library/Adafruit_SSD1306/ssd1306_128x64_spi");
 		ret.add("Library/Adafruit_ST7735_Library/soft_spitftbitmap");
 		ret.add("Library/Adafruit_TCS34725/colorview/processing/colorview");
-
 		ret.add("Library/Adafruit_TinyRGBLCDShield/TinyHelloWorld");
 		ret.add("Library/Akafugu_TWILiquidCrystal_Library/change_address");
 		ret.add("Library/Akafugu_WireRtc_Library/alarm");
@@ -331,7 +337,6 @@ public class Examples {
 		ret.add("Library/DS3231/echo_time");
 		ret.add("Library/Easy_NeoPixels");
 		ret.add("Library/DallasTemperature/AlarmHandler");
-
 		ret.add("Library/AmazonDRS/amazonDashNfc");
 		ret.add("Library/Andee/Lesson_02_Buttons/Lesson_2h_Using_Buttons_to_Control_Servos");
 		ret.add("Library/Andee/Project_Christmas_Lights_and_Annoying_Music");
@@ -341,7 +346,41 @@ public class Examples {
 		ret.add("Library/arduino-fsm/timed_switchoff");
 		ret.add("Library/BME280/BME_280_BRZO_I2C_Test");
 		ret.add("Library/Adafruit_seesaw_Library/DAP");
-
+		// uses unknown NO_ERROR
+		ret.add("Library/ClosedCube_TCA9546A/tca9546a_sht31d");
+		// uses dht.h from dht_sensor_lib
+		ret.add("Library/CMMC_MQTT_Connector/basic_dht");
+		ret.add("Library/ArduinoLearningKitStarter/boardTest");
+		// uses altsoftserial and then Serial2????
+		ret.add("Library/CMMC_NB-IoT/example1");
+		// some bu!g I guess
+		ret.add("Library/CopyThreads/ExamplesFromReadme");
+		ret.add("Library/CRC_Simula_Arduino_IDE_Library/Simula_BehaviorTree");
+		// empty sketch??
+		ret.add("Library/DFW/ProvisionController");
+		// error: 'mapSensor' was not declared in this scope
+		ret.add("Library/AD_Sensors/ConstrainAnalogSensor");
+		// error: 'sensor' was not declared in this scope
+		ret.add("Library/AD_Sensors/MapAndConstrainAnalogSensor");
+		// ess-yun.ino:17:12: error: no matching function for call to
+		// 'HttpClient::HttpClient()'
+		ret.add("Library/arduino-ess/ess-yun");
+		// I have no linket board in test setup
+		ret.add("Library/arduino-ess/linkit-one-dweet");
+        //cores\arduino/WString.h:38:74: error: statement-expressions 
+		ret.add("Library/ArduinoTrace/TraceFromGlobalScope");
+		// no matching function for call to 'aREST::handle(EthernetClient&)'
+		ret.add("Library/aREST/Ethernet");
+		// AsciiMassage_servos.ino:75:37: error: no matching function for call to
+		// 'AsciiMassagePacker::streamEmpty(const char [6])'
+		ret.add("Library/AsciiMassage/AsciiMassage_servos");
+		// \BH1750FVI_Simple.ino:33:10: error: 'class Serial_' has no member named
+		// 'printf'
+		ret.add("Library/BH1750FVI/BH1750FVI_Simple");
+		// * This example not complete at all, TODO.
+		ret.add("Library/Blinker/Blinker_AUTO/AUTO_MQTT");
+		// 3: error: 'StaticJsonBuffer' was not declared in this scope
+		ret.add("Library/Boodskap_Message_library/SimpleMessageUsage");
 		return ret;
 	}
 
@@ -352,52 +391,84 @@ public class Examples {
 	 * returns null if this code should not be tested return null if myBoards is
 	 * empty returns the best known boarddescriptor to run this example
 	 */
-
 	public static MCUBoard pickBestBoard(Examples example, MCUBoard myBoards[]) {
 		String libName = example.getLibName();
 		String fqn = example.getFQN();
 		if (myBoards.length == 0) {
 			return null;
 		}
-		/*
-		 * This example does not build out of the box
-		 */
+
 		if (example.getRequiredBoardAttributes().worksOutOfTheBox) {
-			return null;
-		}
 
-		// if the boardname is in the libname or ino name pick this one
-		for (MCUBoard curBoard : myBoards) {
-			String curBoardName = curBoard.getSlangName().toLowerCase();
-			if (libName.toLowerCase().contains(curBoardName) || fqn.toLowerCase().contains(curBoardName)) {
-				if (curBoard.isExampleSupported(example)) {
-					return curBoard;
+			// if example states which board it wants use that board
+			if (example.getRequiredBoardAttributes().boardName != null) {
+				String wantedBoardName = example.getRequiredBoardAttributes().boardName;
+				for (MCUBoard curBoard : myBoards) {
+					if (curBoard.getID().equals(wantedBoardName)) {
+						return curBoard;
+					}
+				}
+			} else {
+				// examples using DHT_sensor_library libraries are not found as the include is
+				// DHT.h
+				if (!libName.equals("DHT_sensor_library") && fqn.contains("DHT")) {
+					return null;
+				}
+				// if the boardname is in the libname or ino name pick this one
+				for (MCUBoard curBoard : myBoards) {
+					String curBoardName = curBoard.getSlangName().toLowerCase();
+					if (libName.toLowerCase().contains(curBoardName) || fqn.toLowerCase().contains(curBoardName)) {
+						if (curBoard.isExampleSupported(example)) {
+							return curBoard;
+						}
+					}
+				}
+				// If the architecture is in the libname or boardname pick this one
+				for (MCUBoard curBoard : myBoards) {
+					String curArchitectureName = curBoard.getBoardDescriptor().getArchitecture().toLowerCase();
+					if (libName.toLowerCase().contains(curArchitectureName)
+							|| fqn.toLowerCase().contains(curArchitectureName)) {
+						if (curBoard.isExampleSupported(example)) {
+							return curBoard;
+						}
+					}
+				}
+				// if the example name contains teensy try teensy board
+				if (example.getFQN().toLowerCase().contains("teensy")) {
+					for (MCUBoard curBoard : myBoards) {
+						if (Teensy.class.isInstance(curBoard)) {
+							return curBoard;
+						}
+					}
+				}
+				// if the example name contains ESP32 try ESP32 board
+				if (example.getFQN().toLowerCase().contains("esp32")) {
+					for (MCUBoard curBoard : myBoards) {
+						if (ESP32.class.isInstance(curBoard)) {
+							return curBoard;
+						}
+					}
+				}
+				// if the example name contains ESP try ESP8266 board
+//				if (example.getFQN().toLowerCase().contains("esp")) {
+//					for (MCUBoard curBoard : myBoards) {
+//						if (ESP8266.class.isInstance(curBoard)) {
+//							return curBoard;
+//						}
+//					}
+//				}
+//causes issues with response
+				
+				// Out of guesses based on the name. Take the first ok one
+				for (MCUBoard curBoard : myBoards) {
+					if (curBoard.isExampleSupported(example)) {
+						return curBoard;
+					}
 				}
 			}
 		}
-		// If the archtecture is in the libname or boardname pick this one
-		for (MCUBoard curBoard : myBoards) {
-			String curArchitectureName = curBoard.getBoardDescriptor().getArchitecture().toLowerCase();
-			if (libName.toLowerCase().contains(curArchitectureName)
-					|| fqn.toLowerCase().contains(curArchitectureName)) {
-				if (curBoard.isExampleSupported(example)) {
-					return curBoard;
-				}
-			}
-		}
-
-
-		// Out of guesses based on the name. Take the first ok one
-		for (MCUBoard curBoard : myBoards) {
-			if (curBoard.isExampleSupported(example)) {
-				return curBoard;
-			}
-		}
-
 		System.out.println("No board found for " + Integer.toString(++noBoardFoundCount) + " " + example.getFQN());
-
 		return null;
-
 	}
 
 	private static String getRequiredBoardID(String fqn) {
@@ -412,22 +483,16 @@ public class Examples {
 		case "Library/Adafruit_Circuit_Playground/Infrared_Demos/Infrared_Testpattern":
 		case "Library/Adafruit_Zero_FFT_Library/CircuitPlayground":
 			return "adafruit_circuitplayground_m0";
-
 		case "Library/Adafruit_MiniMLX90614/templight":
 			return "gemma";
 		case "Library/ArduinoThread/SensorThread":
 			return "due";
 		case "Library/AudioFrequencyMeter/SimpleAudioFrequencyMeter":
-				return "zero";
+		case "Library/Adafruit_NeoPXL8/strandtest":
+			return "zero";
 		case "Library/BLEPeripheral/iBeacon":
-		return "feather52";
+			return "feather52";
 		}
-
-
 		return null;
-
-
-
 	}
-
 }

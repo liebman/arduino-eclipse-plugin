@@ -11,96 +11,127 @@ import org.eclipse.swt.widgets.Listener;
  * a class containing a label and a combobox in one. This makes it easier to make both visible together
  */
 public class LabelCombo {
-	private GridData mComboGriddata;
-	private GridData mLabelGriddata;
+	private GridData myComboGriddata;
+	private GridData myLabelGriddata;
 	private String myID = new String();
+	private Label myLabel;
+	private Combo myCombo;
+	private String myValue = ""; //$NON-NLS-1$
+	private String myMenuName;
+	private Listener myListener = null;
 
-	public LabelCombo(Composite composite, String menuName, String ID, int horSpan, boolean readOnly) {
-		this.myID = ID;
-		this.mLabel = new Label(composite, SWT.NONE);
-		this.mLabel.setText(menuName + " :"); //$NON-NLS-1$
-		this.mLabelGriddata = new GridData();
-		this.mLabelGriddata.horizontalSpan = 1;// (ncol - 1);
-		this.mLabelGriddata.horizontalAlignment = SWT.FILL;
-		this.mLabel.setLayoutData(this.mLabelGriddata);
-		if (readOnly) {
-			this.mCombo = new Combo(composite, SWT.BORDER | SWT.READ_ONLY);
+	/**
+	 * Create a combo box with a label in front of it.
+	 * @param composite
+	 * @param menuName
+	 * @param ID
+	 * @param horSpan
+	 * @param fixedList if true only items of the list can be selected. If false you can type any text you want
+	 */
+	public LabelCombo(Composite composite, String menuName, String ID, int horSpan, boolean fixedList) {
+		myID = ID;
+		myLabel = new Label(composite, SWT.NONE);
+		myLabel.setText(menuName + " :"); //$NON-NLS-1$
+		myLabelGriddata = new GridData();
+		myLabelGriddata.horizontalSpan = 1;
+		myLabelGriddata.horizontalAlignment = SWT.FILL;
+		myLabel.setLayoutData(myLabelGriddata);
+		if (fixedList) {
+			myCombo = new Combo(composite, SWT.BORDER | SWT.READ_ONLY);
 		} else {
-			this.mCombo = new Combo(composite, SWT.BORDER);
+			myCombo = new Combo(composite, SWT.BORDER);
 		}
-		this.mComboGriddata = new GridData();
-		this.mComboGriddata.horizontalSpan = horSpan;// (ncol - 1);
-		this.mComboGriddata.horizontalAlignment = SWT.FILL;
-		this.mCombo.setLayoutData(this.mComboGriddata);
-		this.mMenuName = menuName;
+		myComboGriddata = new GridData();
+		myComboGriddata.horizontalSpan = horSpan;
+		myComboGriddata.horizontalAlignment = SWT.FILL;
+		myCombo.setLayoutData(myComboGriddata);
+		myMenuName = menuName;
 
 	}
 
 	public void addListener(Listener listener) {
-		this.mCombo.addListener(SWT.Modify, listener);
-		this.myListener = listener;
+		myCombo.addListener(SWT.Modify, listener);
+		myListener = listener;
 	}
 
-	private Label mLabel;
-	public Combo mCombo;
-	private String myValue = ""; //$NON-NLS-1$
-	private String mMenuName;
-	private Listener myListener = null;
+
 
 	public String getValue() {
-		this.myValue = this.mCombo.getText().trim();
-		return this.myValue;
+		myValue = myCombo.getText().trim();
+		return myValue;
 	}
 
 	public String getMenuName() {
-		return this.mMenuName.trim();
+		return myMenuName.trim();
 	}
 
 	public void setValue(String value) {
-		this.myValue = value;
-		this.mCombo.setText(value);
+		myValue = value;
+		myCombo.setText(value);
 	}
 
 	public void setVisible(boolean visible) {
-		boolean newvisible = visible && (this.mCombo.getItemCount() > 0);
-		this.mLabel.setVisible(newvisible);
-		this.mCombo.setVisible(newvisible);
-		this.mComboGriddata.exclude = !newvisible;
-		this.mLabelGriddata.exclude = !newvisible;
+		boolean newvisible = visible && (myCombo.getItemCount() > 0);
+		myLabel.setVisible(newvisible);
+		myCombo.setVisible(newvisible);
+		myComboGriddata.exclude = !newvisible;
+		myLabelGriddata.exclude = !newvisible;
 	}
 
 	public boolean isValid() {
-		return !this.mCombo.getText().isEmpty() || this.mCombo.getItemCount() == 0;
+		return !myCombo.getText().isEmpty() || myCombo.getItemCount() == 0;
 	}
 
 	public void setEnabled(boolean enabled) {
-		this.mCombo.setEnabled(enabled);
+		myCombo.setEnabled(enabled);
 	}
 
 	public void setItems(String[] items) {
-		if (this.myListener != null)
-			this.mCombo.removeListener(SWT.Modify, this.myListener);
-		this.mCombo.setItems(items);
-		this.mCombo.setText(this.myValue);
-		if (this.myListener != null)
-			this.mCombo.addListener(SWT.Modify, this.myListener);
+		if (myListener != null)
+			myCombo.removeListener(SWT.Modify, myListener);
+		myCombo.setItems(items);
+		myCombo.setText(myValue);
+		if (myListener != null)
+			myCombo.addListener(SWT.Modify, myListener);
 
 	}
 
 	public void add(String item) {
-		this.mCombo.add(item);
+		myCombo.add(item);
 	}
 
 	public String getID() {
-		return this.myID;
+		return myID;
 	}
 
 	public boolean isVisible() {
-		return (this.mCombo.getItemCount() > 0);
+		return (myCombo.getItemCount() > 0);
 	}
 
 	public void setLabel(String newLabel) {
-		this.mLabel.setText(newLabel);
+		myLabel.setText(newLabel);
 
+	}
+
+	public int getSelectionIndex() {
+		return myCombo.getSelectionIndex();
+	}
+
+	public void select(int ordinal) {
+		myCombo.select(ordinal);
+	}
+
+	public String getText() {
+		return myCombo.getText();
+	}
+
+	public void setText(String text) {
+		myCombo.setText(text);
+		
+	}
+
+	public void addListener(int event, Listener comboListener) {
+		myCombo.addListener( event,  comboListener);
+		
 	}
 }

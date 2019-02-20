@@ -17,8 +17,13 @@ public class Arduino extends MCUBoard {
 	private static final String AVRPlatformName = "Arduino AVR Boards";
 	private static final String SAMDPlatformName = "Arduino SAMD Boards (32-bits ARM Cortex-M0+)";
 	private static final String SAMPlatformName = "Arduino SAM Boards (32-bits ARM Cortex-M3)";
-	private static final String NFR52PlatformName = "Arduino NRF52 Boards";
+	private static final String NFR52PlatformName = "Arduino nRF52 Boards";
 	private static final String intelPlatformName = "Intel Curie Boards";
+    private static final String jsonFileName ="package_index.json";
+    
+    public static final String circuitplay32ID="circuitplay32u4cat";
+    public static final String unoID="uno";
+    public static final String ethernetID="ethernet";
 
 	public static MCUBoard gemma() {
 		MCUBoard ret = new Arduino(providerArduino, AVRPlatformName, "gemma");
@@ -35,7 +40,7 @@ public class Arduino extends MCUBoard {
 	}
 
 	public static MCUBoard adafruitnCirquitPlayground() {
-		return new Arduino(providerArduino, AVRPlatformName, "circuitplay32u4cat");
+		return new Arduino(providerArduino, AVRPlatformName, circuitplay32ID);
 	}
 	public static MCUBoard cirquitPlaygroundExpress() {
 		return new Arduino(providerArduino, SAMDPlatformName, "adafruit_circuitplayground_m0");
@@ -45,12 +50,12 @@ public class Arduino extends MCUBoard {
 		return new Arduino(providerArduino, AVRPlatformName, boardID);
 	}
 
-	public static MCUBoard fried() {
+	public static MCUBoard fried2016() {
 		return new Arduino(providerArduino, AVRPlatformName, "LilyPadUSB");
 	}
 
-	public static MCUBoard fried(String uploadPort) {
-		MCUBoard fried = fried();
+	public static MCUBoard fried2016(String uploadPort) {
+		MCUBoard fried = fried2016();
 		fried.myBoardDescriptor.setUploadPort(uploadPort);
 		return fried;
 	}
@@ -91,14 +96,14 @@ public class Arduino extends MCUBoard {
 		return yun;
 	}
 
-	public static MCUBoard zero() {
+	public static MCUBoard zeroProgrammingPort() {
 		MCUBoard zero = new Arduino(providerArduino, SAMDPlatformName, "arduino_zero_edbg");
 		zero.mySlangName="zero";
 		return zero;
 	}
 
-	public static MCUBoard zero(String uploadPort) {
-		MCUBoard zero = zero();
+	public static MCUBoard zeroProgrammingPort(String uploadPort) {
+		MCUBoard zero = zeroProgrammingPort();
 		zero.myBoardDescriptor.setUploadPort(uploadPort);
 		return zero;
 	}
@@ -132,8 +137,12 @@ public class Arduino extends MCUBoard {
 	}
 
 	public static MCUBoard uno() {
-		MCUBoard uno = new Arduino(providerArduino, AVRPlatformName, "uno");
+		MCUBoard uno = new Arduino(providerArduino, AVRPlatformName, unoID);
 		uno.mySlangName="uno";
+		return uno;
+	}
+	public static MCUBoard ethernet() {
+		MCUBoard uno = new Arduino(providerArduino, AVRPlatformName, ethernetID);
 		return uno;
 	}
 
@@ -145,6 +154,7 @@ public class Arduino extends MCUBoard {
 
 	public static MCUBoard arduino_101() {
 		MCUBoard arduino_101 = new Arduino(providerIntel, intelPlatformName, "arduino_101");
+		arduino_101.mySlangName="101";
 		return arduino_101;
 	}
 
@@ -154,8 +164,9 @@ public class Arduino extends MCUBoard {
 		return arduino_101;
 	}
 
+
 	private Arduino(String providerName, String platformName, String boardName) {
-		this.myBoardDescriptor = PackageManager.getBoardDescriptor("package_index.json", providerName, platformName,
+		this.myBoardDescriptor = PackageManager.getBoardDescriptor(jsonFileName, providerName, platformName,
 				boardName, null);
 		if (this.myBoardDescriptor == null) {
 			fail(boardName + " Board not found");
@@ -220,5 +231,61 @@ public class Arduino extends MCUBoard {
 
 		return ret;
 	}
+	public static void installLatestAVRBoards() {
+	    PackageManager.installLatestPlatform(jsonFileName,providerArduino, AVRPlatformName);
+	}
 
+    public static void installLatestSamDBoards() {
+        PackageManager.installLatestPlatform(jsonFileName,providerArduino, SAMDPlatformName);   
+    }
+
+    public static MCUBoard[] getAllBoards() {
+    	//hardcode this stuff now because I want to release 4.3.1
+    	//shoulds be something like 
+        //return PackageManager.getAllBoardDescriptors(getJsonFileName(),getPackageName(),getPlatformName() , options);
+    	MCUBoard[] boards = {         Arduino.uno(),
+    	        Arduino.leonardo(),
+    	        Arduino.esplora(),
+    	        Arduino.yun(),
+    	        Arduino.getAvrBoard("diecimila"),
+    	        Arduino.getMega2560Board(),
+    	        Arduino.MegaADK(),
+    	        Arduino.getAvrBoard("leonardoeth"),
+    	        Arduino.getAvrBoard("micro"),
+    	        Arduino.getAvrBoard("mini"),
+    	        Arduino.getAvrBoard("ethernet"),
+    	        Arduino.getAvrBoard("fio"),
+    	        Arduino.getAvrBoard("bt"),
+    	        Arduino.getAvrBoard("LilyPadUSB"),
+    	        Arduino.getAvrBoard("lilypad"),
+    	        Arduino.getAvrBoard("pro"),
+    	        Arduino.getAvrBoard("atmegang"),
+    	        Arduino.getAvrBoard("robotControl"),
+    	        Arduino.getAvrBoard("robotMotor"),
+    	        Arduino.getAvrBoard("gemma"),
+    	        Arduino.adafruitnCirquitPlayground(),
+    	        Arduino.getAvrBoard("yunmini"),
+    	        Arduino.getAvrBoard("chiwawa"),
+    	        Arduino.getAvrBoard("one"),
+    	        Arduino.getAvrBoard("unowifi"), };
+		return boards;
+   			
+    }
+	public static MCUBoard zeroNatviePort() {
+		MCUBoard zero = new Arduino(providerArduino, SAMDPlatformName, "arduino_zero_native");
+		zero.mySlangName="zero Native";
+		zero.mySerialPort="SerialUSB";
+		return zero;
+	}
+
+
+	public static MCUBoard zeroNatviePort(String uploadPort) {
+		MCUBoard zero = zeroNatviePort();
+		zero.myBoardDescriptor.setUploadPort(uploadPort);
+		return zero;
+	}
+
+    
+    
+    
 }

@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Sloeber, the Eclipse Arduino IDE" uid="io.sloeber.product" id="io.sloeber.application.product" application="org.eclipse.ui.ide.workbench" version="4.2.0.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="Sloeber" uid="io.sloeber.product" id="io.sloeber.application.product" application="org.eclipse.ui.ide.workbench" version="4.3.1.qualifier" useFeatures="true" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/io.sloeber.application/icons/eclipse_lg.png"/>
       <text>
          Sloeber, the Eclipse IDE for Arduino Developers
 
-Info: http://eclipse.baeyens.it/
-Source: https://github.com/jantje/arduino-eclipse-plugin
-Binaries: http://eclipse.baeyens.it/download.php
+Info: https://sloeber.io/
+Source: https://github.com/sloeber/arduino-eclipse-plugin
 
-Contributors (github users): jantje, brodykenrick, wimjongman, neuweiler,
-darcade, amorellgarcia, MarceloLimori
 
-https://github.com/jantje/arduino-eclipse-plugin/graphs/contributors
+Contributors (github users): jantje, wimjongman, rlogiacco, MarceloLimori, brodykenrick, neuweiler, darcade, amorellgarcia
+
+https://github.com/sloeber/arduino-eclipse-plugin/graphs/contributors
       </text>
    </aboutInfo>
 
@@ -37,7 +36,7 @@ https://github.com/jantje/arduino-eclipse-plugin/graphs/contributors
       </vmArgsMac>
    </launcherArgs>
 
-   <windowImages i16="/io.sloeber.application/icons/logo_16.png" i32="/io.sloeber.application/icons/logo_32.png" i48="/io.sloeber.application/icons/logo_48.png" i256="/io.sloeber.application/icons/logo_256.png"/>
+   <windowImages i16="/io.sloeber.application/icons/logo_16.png" i32="/io.sloeber.application/icons/logo_32.png" i48="/io.sloeber.application/icons/logo_48.png" i64="/io.sloeber.application/icons/logo_64.png" i128="/io.sloeber.application/icons/logo_128.png" i256="/io.sloeber.application/icons/logo_256.png"/>
 
    <splash
       location="io.sloeber.application"
@@ -338,21 +337,20 @@ rights to a jury trial in any resulting litigation.&lt;/p&gt;
       <feature id="org.eclipse.platform" installMode="root"/>
       <feature id="org.eclipse.rcp" installMode="root"/>
       <feature id="org.eclipse.rse" installMode="root"/>
-      <feature id="org.eclipse.cdt.testsrunner.feature"/>
-      <feature id="org.eclipse.equinox.core.sdk"/>
-      <feature id="org.eclipse.rse.local"/>
-      <feature id="org.eclipse.mylyn.tasks.ide"/>
-      <feature id="org.eclipse.rse.dstore"/>
-      <feature id="org.eclipse.rse.ftp"/>
-      <feature id="org.eclipse.rse.telnet"/>
-      <feature id="org.eclipse.rse.ssh"/>
-      <feature id="org.eclipse.rse.core"/>
-      <feature id="org.eclipse.cdt.native"/>
+      <feature id="org.eclipse.cdt.testsrunner.feature" installMode="root"/>
+      <feature id="org.eclipse.equinox.core.sdk" installMode="root"/>
+      <feature id="org.eclipse.rse.local" installMode="root"/>
+      <feature id="org.eclipse.mylyn.tasks.ide" installMode="root"/>
+      <feature id="org.eclipse.rse.dstore" installMode="root"/>
+      <feature id="org.eclipse.rse.ftp" installMode="root"/>
+      <feature id="org.eclipse.rse.telnet" installMode="root"/>
+      <feature id="org.eclipse.rse.ssh" installMode="root"/>
+      <feature id="org.eclipse.rse.core" installMode="root"/>
+      <feature id="org.eclipse.cdt.native" installMode="root"/>
       <feature id="ilg.gnumcueclipse.debug.gdbjtag.openocd.feature"/>
    </features>
 
    <configurations>
-      <plugin id="io.sloeber.application" autoStart="true" startLevel="4" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
@@ -364,12 +362,13 @@ rights to a jury trial in any resulting litigation.&lt;/p&gt;
    </configurations>
 
    <repositories>
-      <repository location="http://download.eclipse.org/eclipse/updates/4.7" enabled="true" />
-      <repository location="http://download.eclipse.org/releases/oxygen" enabled="true" />
-      <repository location="http://eclipse.baeyens.it/update/V4/nightly" enabled="false" />
-      <repository location="http://eclipse.baeyens.it/update/V4/stable" enabled="true" />
-      <repository location="http://download.eclipse.org/nebula/snapshot" enabled="true" />
-      <repository location="http://gnuarmeclipse.sourceforge.net/updates" enabled="true" />
+      <repository location="http://download.eclipse.org/technology/babel/update-site/R0.16.0/photon/" enabled="true" />
+      <repository location="http://eclipse.baeyens.it/update/V4/nightly/" enabled="false" />
+      <repository location="http://eclipse.baeyens.it/update/V4/stable/" enabled="true" />
+      <repository location="http://download.eclipse.org/eclipse/updates/4.9/" enabled="true" />
+      <repository location="http://download.eclipse.org/releases/latest/" enabled="true" />
+      <repository location="http://gnu-mcu-eclipse.netlify.com/v4-neon-updates/" enabled="true" />
+      <repository location="http://download.eclipse.org/nebula/releases/latest/" enabled="true" />
    </repositories>
 
    <preferencesInfo>

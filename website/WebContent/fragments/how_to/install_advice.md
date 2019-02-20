@@ -16,31 +16,27 @@ Fasted way to get started.
 reasons to use the plugin
 ==
 **Experts only **
-You know about Eclipse, plugins and update sites.
-It is easier for your situation to start from another eclipse product and add Sloeber than the other way around.
+You know about Sloeber, Eclipse, plugins and update sites.
+It is easier for you to start from another eclipse product and add Sloeber than the other way around.
 For instance because you already have that product (with extensions) on your system.
 
 Which version
 ===
-If you want to use Arduino IDE 1.0.x you need V1.
-If you want to use Arduino IDE 1.5.x till 1.6.3 you need V2.
-**Everybody else should go for V3 or V4** (which should be about everybody).
-The only reason you to hold of for V4 is that it is still to new.
+The latest stable product  
 Unless advised differently (by a more advanced Sloeber user than you): Only go for the nightly if you feel comfortable with Sloeber and eclipse.
 
 Java
 ===
-V1 needs java 6
-V2 needs jave 7
-V3 needs java 8
+
 V4 needs java 8
 
 32 or 64 bit
 ===
-If you are not sure take the 32 bit version. If the Arduino IDE is working on your system you have 32 bit java on your system and you are good to go. If you install the 64 bit version you also may have to install a 64 bit java.
+Eclipse is stopping 32 bit support so if you use a 64 bit system use the 64 bit version. Note you need the java 64(/32) bit version when running 64(/32) bit Sloeber.  
+On linux V4.3 is reported to fail.  
 
 
  **Party success**
 
  1. drink a beer
- 2. [Become a patron of jantje](http://eclipse.baeyens.it/donate.html "thanks")
+ 2. [Support jantje](http://eclipse.baeyens.it/donate.html "thanks")

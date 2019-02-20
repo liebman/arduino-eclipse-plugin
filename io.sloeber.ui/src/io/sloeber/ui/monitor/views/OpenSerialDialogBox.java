@@ -1,28 +1,25 @@
 package io.sloeber.ui.monitor.views;
 
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.viewers.ArrayContentProvider;
-import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import io.sloeber.core.api.SerialManager;
+import io.sloeber.ui.LabelCombo;
+import io.sloeber.ui.Messages;
 import io.sloeber.ui.helpers.MyPreferences;
 
 public class OpenSerialDialogBox extends Dialog {
-    private ComboViewer serialPorts;
-    private ComboViewer baudRates;
-    private Button dtrCheckbox;
-    private String selectedPort;
-    private int selectedRate;
-    private boolean selectedDtr;
+    private LabelCombo mySerialPorts;
+    private LabelCombo myBaudRates;
+    private Button myDtrCheckbox;
+    private String mySelectedPort;
+    private int mySelectedRate;
+    private boolean mySelectedDtr;
 
     protected OpenSerialDialogBox(Shell parentShell) {
 	super(parentShell);
@@ -32,11 +29,11 @@ public class OpenSerialDialogBox extends Dialog {
     protected void okPressed() {
 	// I need to save these values in local variables as the GUI stuff is
 	// deleted after he close
-	this.selectedRate = Integer.parseInt(this.baudRates.getCombo().getText());
-	this.selectedPort = this.serialPorts.getCombo().getText();
-	this.selectedDtr = this.dtrCheckbox.getSelection();
-	MyPreferences.setLastUsedBaudRate(this.baudRates.getCombo().getText());
-	MyPreferences.setLastUsedPort(this.selectedPort);
+	mySelectedRate = Integer.parseInt(myBaudRates.getText());
+	mySelectedPort = mySerialPorts.getText();
+	mySelectedDtr = myDtrCheckbox.getSelection();
+	MyPreferences.setLastUsedBaudRate(myBaudRates.getText());
+	MyPreferences.setLastUsedPort(mySelectedPort);
 	super.okPressed();
     }
 
@@ -45,58 +42,32 @@ public class OpenSerialDialogBox extends Dialog {
 	GridLayout layout = new GridLayout();
 	layout.numColumns = 2;
 	parent.setLayout(layout);
+	mySerialPorts = new LabelCombo(parent, Messages.openSerialDialogBoxSerialPortToConnectTo, null, 1, false);
+	mySerialPorts.setItems(SerialManager.listComPorts());
+	mySerialPorts.setText(MyPreferences.getLastUsedPort());
 
-	// The text fields will grow with the size of the dialog
-	GridData gridData = new GridData();
-	gridData.grabExcessHorizontalSpace = true;
-	gridData.horizontalAlignment = GridData.FILL;
+	myBaudRates = new LabelCombo(parent, Messages.openSerialDialogBoxSelectTheBautRate, null, 1, false);
+	myBaudRates.setItems(SerialManager.listBaudRates());
+	myBaudRates.setText(MyPreferences.getLastUsedRate());
 
-	// Create the serial port combo box to allow to select a serial port
-	Label label1 = new Label(parent, SWT.NONE);
-	label1.setText(Messages.openSerialDialogBoxSerialPortToConnectTo);
-
-	// If there are no comports allow to provide one
-	String[] comPorts = SerialManager.listComPorts();
-	if (comPorts.length == 0) {
-	    this.serialPorts = new ComboViewer(parent, SWT.DROP_DOWN);
-	} else {
-	    this.serialPorts = new ComboViewer(parent, SWT.READ_ONLY | SWT.DROP_DOWN);
-	}
-	this.serialPorts.getControl().setLayoutData(new GridData(SWT.LEFT, SWT.NONE, false, false));
-	this.serialPorts.setContentProvider(new ArrayContentProvider());
-	this.serialPorts.setLabelProvider(new LabelProvider());
-	this.serialPorts.setInput(comPorts);
-
-	// Create baud rate selection combo box to select the baud rate
-	Label label2 = new Label(parent, SWT.NONE);
-	label2.setText(Messages.openSerialDialogBoxSelectTheBautRate);
-	this.baudRates = new ComboViewer(parent, SWT.READ_ONLY | SWT.DROP_DOWN);
-	this.baudRates.getControl().setLayoutData(new GridData(SWT.LEFT, SWT.NONE, false, false));
-	this.baudRates.setContentProvider(new ArrayContentProvider());
-	this.baudRates.setLabelProvider(new LabelProvider());
-	this.baudRates.setInput(SerialManager.listBaudRates());
-
-	this.baudRates.getCombo().setText(MyPreferences.getLastUsedRate());
-	this.serialPorts.getCombo().setText(MyPreferences.getLastUsedPort());
-
-	this.dtrCheckbox = new Button(parent, SWT.CHECK);
-	this.dtrCheckbox.setText(Messages.openSerialDialogBoxDtr);
-	this.dtrCheckbox.setSelection(true);
+	myDtrCheckbox = new Button(parent, SWT.CHECK);
+	myDtrCheckbox.setText(Messages.openSerialDialogBoxDtr);
+	myDtrCheckbox.setSelection(true);
 
 	return parent;
 
     }
 
     public String GetComPort() {
-	return this.selectedPort;
+	return mySelectedPort;
     }
 
     public int GetBaudRate() {
-	return this.selectedRate;
+	return mySelectedRate;
     }
 
     public boolean GetDtr() {
-	return this.selectedDtr;
+	return mySelectedDtr;
     }
 
 }

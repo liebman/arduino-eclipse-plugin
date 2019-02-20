@@ -4,19 +4,17 @@ import java.util.Map;
 
 import io.sloeber.core.api.IInstallLibraryHandler;
 import io.sloeber.core.api.LibraryDescriptor;
-import io.sloeber.ui.preferences.PreferencePage;
+import io.sloeber.ui.helpers.MyPreferences;
 
 public class MyLibraryInstallHandler implements IInstallLibraryHandler {
 
 	@Override
 	public boolean autoInstall() {
-		// TODO Auto-generated method stub
-		return PreferencePage.getAutomaticallyInstallLibrariesOption();
+		return MyPreferences.getAutomaticallyInstallLibrariesOption();
 	}
 
 	@Override
 	public Map<String, LibraryDescriptor> selectLibrariesToInstall(Map<String, LibraryDescriptor> proposedLibsToInstall) {
-		// TODO Auto-generated method stub
 		return proposedLibsToInstall;
 	}
 

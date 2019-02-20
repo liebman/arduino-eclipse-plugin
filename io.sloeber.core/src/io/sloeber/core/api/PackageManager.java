@@ -22,6 +22,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
@@ -32,6 +33,7 @@ import org.eclipse.core.runtime.Status;
 import com.google.gson.Gson;
 
 import io.sloeber.core.Activator;
+import io.sloeber.core.Messages;
 import io.sloeber.core.api.PackageManager.PlatformTree.IndexFile;
 import io.sloeber.core.api.PackageManager.PlatformTree.InstallableVersion;
 import io.sloeber.core.api.PackageManager.PlatformTree.Platform;
@@ -53,8 +55,11 @@ import io.sloeber.core.tools.TxtFile;
  * @author jantje
  *
  */
+@SuppressWarnings("unused")
 public class PackageManager {
 
+	private static final String FILE = Messages.FILE;
+	private static final String FOLDER = Messages.FOLDER;
 	protected static List<PackageIndex> packageIndices;
 	private static boolean myHasbeenLogged=false;
 	/**
@@ -207,7 +212,7 @@ public class PackageManager {
 		}
 		if (boardFiles.size() == 0) {
 			Common.log(new Status(IStatus.ERROR, Const.CORE_PLUGIN_ID,
-					Messages.Helpers_No_boards_txt_found + String.join("\n", hardwareFolders), null)); //$NON-NLS-1$
+					Messages.Helpers_No_boards_txt_found.replace(FILE, String.join("\n", hardwareFolders)), null)); //$NON-NLS-1$
 			return null;
 		}
 		return boardFiles.toArray(new String[boardFiles.size()]);
@@ -219,7 +224,7 @@ public class PackageManager {
 			if (a == null) {
 				if(!myHasbeenLogged) {
 				Common.log(new Status(IStatus.INFO, Const.CORE_PLUGIN_ID,
-						Messages.Helpers_The_folder + folder + Messages.Helpers_is_empty, null));
+						Messages.Helpers_Error_The_folder_is_empty.replace(FOLDER, folder.toString()) , null));
 				myHasbeenLogged=true;
 				}
 				return;
@@ -538,6 +543,9 @@ public class PackageManager {
 			status.add(new Status(IStatus.ERROR, Const.CORE_PLUGIN_ID, "BoardsManager is still busy", null)); //$NON-NLS-1$
 			return status;
 		}
+		if(!ConfigurationPreferences.getUpdateJasonFilesFlag()) {
+		   loadJsons(true);
+		}
 		try {
 			InternalPackageManager.setReady(false);
 
@@ -636,7 +644,7 @@ public class PackageManager {
 		if (!jsonFile.exists() || forceDownload) {
 			jsonFile.getParentFile().mkdirs();
 			try {
-				myCopy(new URL(url.trim()), jsonFile, false);
+				mySafeCopy(new URL(url.trim()), jsonFile, false);
 			} catch (IOException e) {
 				Common.log(new Status(IStatus.ERROR, Activator.getId(), "Unable to download " + url, e)); //$NON-NLS-1$
 			}
@@ -661,7 +669,7 @@ public class PackageManager {
 			packageIndices.add(index);
 		} catch (Exception e) {
 			Common.log(new Status(IStatus.ERROR, Activator.getId(),
-					Messages.Manager_Failed_to_parse.replace("${FILE}", jsonFile.getAbsolutePath()), e)); //$NON-NLS-1$
+					Messages.Manager_Failed_to_parse.replace(FILE, jsonFile.getAbsolutePath()), e)); 
 			jsonFile.delete();// Delete the file so it stops damaging
 		}
 	}
@@ -717,7 +725,7 @@ public class PackageManager {
 		}
 		try {
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setReadTimeout(5000);
+			conn.setReadTimeout(30000);
 			conn.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
 			conn.addRequestProperty("User-Agent", "Mozilla");
 			conn.addRequestProperty("Referer", "google.com");
@@ -750,6 +758,32 @@ public class PackageManager {
 		}
 	}
 
+	
+	
+	/**
+	 * copy a url locally taking into account redirections in such a way that if
+	 * there is already a file it does not get lost if the download fails
+	 *
+	 * @param url
+	 * @param localFile
+	 * @throws IOException
+	 */
+	protected static void mySafeCopy(URL url, File localFile, boolean report_error) throws IOException {
+		File savedFile = null;
+		if (localFile.exists()) {
+			savedFile = File.createTempFile(localFile.getName(), "Sloeber"); //$NON-NLS-1$
+			Files.move(localFile.toPath(), savedFile.toPath(), REPLACE_EXISTING);
+		}
+		try {
+			myCopy(url, localFile, report_error);
+		} catch (Exception e) {
+			if (null != savedFile) {
+				Files.move(savedFile.toPath(), localFile.toPath(), REPLACE_EXISTING);
+			}
+			throw e;
+		}
+	}
+	
 	public static String[] getJsonURLList() {
 		return ConfigurationPreferences.getJsonURLList();
 	}
@@ -773,7 +807,7 @@ public class PackageManager {
 				if (localFile.exists()) {
 					localFile.delete();
 				}
-			} catch (@SuppressWarnings("unused") Exception e) {
+			} catch ( Exception e) {
 				// ignore
 			}
 		}
@@ -795,9 +829,10 @@ public class PackageManager {
 		try {
 			FileUtils.deleteDirectory(ConfigurationPreferences.getInstallationPathPackages().toFile());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+	}
+	public static IPath getInstallationPath() {
+	    return ConfigurationPreferences.getInstallationPath();
 	}
 }

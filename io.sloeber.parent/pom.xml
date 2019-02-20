@@ -4,11 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.brodykenrick.arduino-eclipse-plugin</groupId>
 	<artifactId>io.sloeber.parent</artifactId>
-	<version>4.2.0-SNAPSHOT</version>
+	<version>4.3.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho.version>0.24.0</tycho.version>
+		<tycho.version>1.2.0</tycho.version>
 		<built.repo.dir>${project.build.directory}/repo</built.repo.dir>
 	</properties>
 
@@ -104,11 +104,12 @@
 			<modules>
 				<module>../io.sloeber.feature</module>
 				<module>../io.sloeber.core</module>
-				<module>../io.sloeber.product.sdk</module>
-				<module>../io.sloeber.updatesite</module>
 				<module>../io.sloeber.application</module>
+				<module>../io.sloeber.core.nl1</module>
+				<module>../io.sloeber.product.sdk</module>
 				<module>../io.sloeber.ui.nl1</module>
 				<module>../io.sloeber.ui</module>
+				<module>../io.sloeber.tests</module>
 			</modules>
 		</profile>
 
@@ -119,10 +120,11 @@
 			</activation>
 			<modules>
 				<module>../io.sloeber.feature</module>
+				<module>../io.sloeber.application</module>
 				<module>../io.sloeber.core</module>
+				<module>../io.sloeber.core.nl1</module>
 				<module>../io.sloeber.product</module>
 				<module>../io.sloeber.updatesite</module>
-				<module>../io.sloeber.application</module>
 				<module>../io.sloeber.ui.nl1</module>
 				<module>../io.sloeber.ui</module>
 				<module>../io.sloeber.tests</module>
@@ -255,32 +257,6 @@
 			</build>
 		</profile>
 
-
-		<profile>
-			<id>linux32</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.eclipse.tycho</groupId>
-						<artifactId>target-platform-configuration</artifactId>
-						<version>${tycho.version}</version>
-						<configuration>
-							<!-- configure the p2 target environments for multi-platform build -->
-							<!-- The strings ("linux", "gtk", "x86"...) are defined by the OSGi
-								spec -->
-							<environments>
-								<environment>
-									<os>linux</os>
-									<ws>gtk</ws>
-									<arch>x86</arch>
-								</environment>
-							</environments>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
 		<profile>
 			<id>linux64</id>
 			<build>
@@ -298,32 +274,6 @@
 									<os>linux</os>
 									<ws>gtk</ws>
 									<arch>x86_64</arch>
-								</environment>
-							</environments>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-		<profile>
-			<id>mac32</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.eclipse.tycho</groupId>
-						<artifactId>target-platform-configuration</artifactId>
-						<version>${tycho.version}</version>
-						<configuration>
-							<!-- configure the p2 target environments for multi-platform build -->
-							<!-- The strings ("linux", "gtk", "x86"...) are defined by the OSGi
-								spec -->
-							<environments>
-								<!-- Mac -->
-								<environment>
-									<os>macosx</os>
-									<ws>cocoa</ws>
-									<arch>x86</arch>
 								</environment>
 							</environments>
 						</configuration>
@@ -359,104 +309,6 @@
 		</profile>
 
 		<profile>
-			<id>luna</id>
-			<properties>
-				<platform-version-name>luna</platform-version-name>
-			</properties>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-
-			<repositories>
-				<repository>
-					<id>platform_luna</id>
-					<layout>p2</layout>
-					<url> http://download.eclipse.org/eclipse/updates/4.4</url>
-				</repository>
-
-				<repository>
-					<id>release-train_luna</id>
-					<layout>p2</layout>
-					<url> http://download.eclipse.org/releases/luna</url>
-				</repository>
-			</repositories>
-		</profile>
-
-		<profile>
-			<id>mars</id>
-			<properties>
-				<platform-version-name>mars</platform-version-name>
-			</properties>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-
-			<repositories>
-				<repository>
-					<id>platform_mars</id>
-					<layout>p2</layout>
-					<url> http://download.eclipse.org/eclipse/updates/4.5</url>
-				</repository>
-
-				<repository>
-					<id>release-train_mars</id>
-					<layout>p2</layout>
-					<url> http://download.eclipse.org/releases/mars</url>
-				</repository>
-			</repositories>
-		</profile>
-
-		<profile>
-			<id>neon</id>
-			<properties>
-				<platform-version-name>neon</platform-version-name>
-			</properties>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-
-			<repositories>
-				<repository>
-					<id>platform_neon</id>
-					<layout>p2</layout>
-					<url> http://download.eclipse.org/eclipse/updates/4.6</url>
-				</repository>
-
-				<repository>
-					<id>release-train_neon</id>
-					<layout>p2</layout>
-					<url> http://download.eclipse.org/releases/neon</url>
-				</repository>
-
-			</repositories>
-		</profile>
-
-		<profile>
-			<id>oxygen</id>
-			<properties>
-				<platform-version-name>oxygen</platform-version-name>
-			</properties>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-
-			<repositories>
-				<repository>
-					<id>platform_oxygen</id>
-					<layout>p2</layout>
-					<url>http://download.eclipse.org/eclipse/updates/4.7</url>
-				</repository>
-
-				<repository>
-					<id>release-train_oxygen</id>
-					<layout>p2</layout>
-					<url>http://download.eclipse.org/releases/oxygen</url>
-				</repository>
-
-			</repositories>
-		</profile>
-
-		<profile>
 			<id>photon</id>
 			<properties>
 				<platform-version-name>photon</platform-version-name>
@@ -477,10 +329,82 @@
 					<layout>p2</layout>
 					<url>http://download.eclipse.org/releases/photon</url>
 				</repository>
-
 			</repositories>
 		</profile>
 
+
+		<profile>
+			<id>2018-09</id>
+			<properties>
+				<platform-version-name>2018-09</platform-version-name>
+			</properties>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			
+			<repositories>
+				<repository>
+					<id>2018-09</id>
+					<layout>p2</layout>
+					<url>http://download.eclipse.org/eclipse/updates/4.9</url>
+				</repository>
+
+				<repository>
+					<id>release-train_2018-09</id>
+					<layout>p2</layout>
+					<url>http://download.eclipse.org/releases/2018-09</url>
+				</repository>
+			</repositories>
+		</profile>
+		
+		<profile>
+			<id>2018-12</id>
+			<properties>
+				<platform-version-name>2018-12</platform-version-name>
+			</properties>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			
+			<repositories>
+				<repository>
+					<id>2018-12</id>
+					<layout>p2</layout>
+					<url>http://download.eclipse.org/eclipse/updates/4.10</url>
+				</repository>
+
+				<repository>
+					<id>release-train_2018-12</id>
+					<layout>p2</layout>
+					<url>http://download.eclipse.org/releases/2018-12</url>
+				</repository>
+			</repositories>
+		</profile>
+		
+		<!-- Latest must be the same as the previous one. -->	
+		<profile>
+			<id>latest</id> 
+			<properties>
+				<platform-version-name>latest</platform-version-name>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+
+			<repositories>
+				<repository>
+					<id>platform_latest</id>
+					<layout>p2</layout>
+					<url>http://download.eclipse.org/eclipse/updates/4.10</url>
+				</repository>
+
+				<repository>
+					<id>release-train_latest</id>
+					<layout>p2</layout>
+					<url>http://download.eclipse.org/releases/2018-12</url>
+				</repository>
+			</repositories>
+		</profile>
 
 	</profiles>
 
@@ -488,15 +412,8 @@
 		<repository>
 			<id>nebula</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/nebula/snapshot</url>
+			<url>http://download.eclipse.org/nebula/releases/latest/</url>
 		</repository>
-
-		<repository>
-			<id>cdt</id>
-			<layout>p2</layout>
-			<url>http://download.eclipse.org/tools/cdt/releases/9.4</url>
-		</repository>
-
 
 		<repository>
 			<id>gnumcu</id>

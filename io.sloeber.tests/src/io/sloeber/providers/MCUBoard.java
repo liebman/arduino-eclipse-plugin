@@ -13,6 +13,7 @@ public  class MCUBoard {
 	protected BoardDescriptor myBoardDescriptor = null;
 	public BoardAttributes myAttributes=new BoardAttributes();
 	public String mySlangName;
+	public String mySerialPort="Serial";
 
 
 	public BoardDescriptor getBoardDescriptor() {
@@ -30,7 +31,7 @@ public  class MCUBoard {
 		 * There is one know Teensy example that does not
 		 * run on all teensy boards
 		 */
-		if ("Teensy".equalsIgnoreCase(getName())) {
+		if ("Teensy".equalsIgnoreCase(getID())) {
 			if (example.getFQN().contains("Teensy/USB_Mouse/Buttons")) {
 				String boardID = myBoardDescriptor.getBoardID();
 				if ("teensypp2".equals(boardID) || "teensy2".equals(boardID)) {
@@ -38,7 +39,7 @@ public  class MCUBoard {
 				}
 			}
 		}
-		myAttributes.boardID=myBoardDescriptor.getBoardID();
+		myAttributes.boardName=myBoardDescriptor.getBoardID();
 		return myAttributes.compatibleWithExampleRequirements(example.getRequiredBoardAttributes());
 	}
 
@@ -46,7 +47,7 @@ public  class MCUBoard {
  * give the name of the board as it appears in boards.txt
  * @return the name of the board as shown in the gui
  */
-	public String getName() {
+	public String getID() {
 		if (myBoardDescriptor == null) {
 			return null;
 		}
@@ -56,7 +57,7 @@ public  class MCUBoard {
 
 	/**
 	 * give the name of the board as it is generally known
-	 * For istance the board "Arduino genuion uno" is uno
+	 * For instance the board "Arduino genuino uno" is uno
 	 * or zero programming port is zero
 	 *
 	 * @return the name of the board as commonly used
@@ -65,7 +66,7 @@ public  class MCUBoard {
 			if (mySlangName != null) {
 				return mySlangName;
 			}
-			return getName();
+			return getID();
 		}
 
 	@SuppressWarnings("static-method")

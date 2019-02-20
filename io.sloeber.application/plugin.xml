@@ -105,18 +105,10 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.eclipse.ui.ide.workbench"
-            name="Sloeber, the Eclipse Arduino IDE">
+            name="Sloeber">
          <property
                name="windowImages"
-               value="icons/logo_16.png,icons/logo_32.png,icons/logo_48.png,icons/logo_256.png">
-         </property>
-         <property
-               name="aboutText"
-               value="Sloeber, the Eclipse IDE for Arduino Developers&#x0A;&#x0A;Info: https://eclipse.baeyens.it/&#x0A;Source: https://github.com/jantje/arduino-eclipse-plugin&#x0A;Binaries: https://eclipse.baeyens.it/download.php&#x0A;&#x0A;Contributors (github users): jantje, brodykenrick, wimjongman, neuweiler, &#x0A;darcade, amorellgarcia, MarceloLimori&#x0A;&#x0A;https://github.com/jantje/arduino-eclipse-plugin/graphs/contributors">
-         </property>
-         <property
-               name="aboutImage"
-               value="icons/eclipse_lg.png">
+               value="icons/logo_16.png,icons/logo_32.png,icons/logo_48.png,icons/logo_64.png,icons/logo_128.png,icons/logo_256.png">
          </property>
          <property
                name="startupForegroundColor"
@@ -132,7 +124,15 @@
          </property>
          <property
                name="appName"
-               value="Sloeber, the Eclipse Arduino IDE">
+               value="Sloeber">
+         </property>
+         <property
+               name="aboutImage"
+               value="icons/eclipse_lg.png">
+         </property>
+         <property
+               name="aboutText"
+               value="Sloeber, the Eclipse IDE for Arduino Developers&#x0A;&#x0A;Info: https://sloeber.io/&#x0A;Source: https://github.com/sloeber/arduino-eclipse-plugin&#x0A;&#x0A;&#x0A;Contributors (github users): jantje, wimjongman, rlogiacco, MarceloLimori, brodykenrick, neuweiler, darcade, amorellgarcia&#x0A;&#x0A;https://github.com/sloeber/arduino-eclipse-plugin/graphs/contributors">
          </property>
          <property
                name="preferenceCustomization"

@@ -13,13 +13,13 @@ import io.sloeber.core.api.PackageManager;
 @SuppressWarnings("nls")
 public class Teensy extends MCUBoard {
 
-	private final static String Teensy3_0_ID = "teensy30";
-	private final static String Teensy3_1_ID = "teensy31";
-	private final static String Teensy_PP2_ID = "teensypp2";
-	private final static String Teensy_2_ID = "teensy2";
-	private final static String Teensy3_5_ID = "teensy35";
-	private final static String Teensy3_6_ID = "teensy36";
-	private final static String Teensy_LC_ID = "teensyLC";
+	public final static String Teensy3_0_ID = "teensy30";
+	public final static String Teensy3_1_ID = "teensy31";
+	public final static String Teensy_PP2_ID = "teensypp2";
+	public final static String Teensy_2_ID = "teensy2";
+	public final static String Teensy3_5_ID = "teensy35";
+	public final static String Teensy3_6_ID = "teensy36";
+	public final static String Teensy_LC_ID = "teensyLC";
 
 	public static MCUBoard Teensy_LC() {
 		return new Teensy(Teensy_LC_ID);
@@ -30,11 +30,18 @@ public class Teensy extends MCUBoard {
 	}
 
 	public static MCUBoard Teensy3_6() {
-		return new Teensy(Teensy3_6_ID);
+		MCUBoard board =  new Teensy(Teensy3_6_ID);
+		board.mySlangName="teensy3";
+		return board;
 	}
 
 	public static MCUBoard Teensy3_1() {
 		return new Teensy(Teensy3_1_ID);
+	}
+	public static MCUBoard Teensy3_1(String uploadPort) {
+		MCUBoard board = Teensy3_1();
+		board.myBoardDescriptor.setUploadPort(uploadPort);
+		return board;
 	}
 
 	public static MCUBoard Teensy3_0() {
@@ -43,6 +50,11 @@ public class Teensy extends MCUBoard {
 
 	public static MCUBoard teensypp2() {
 		return new Teensy(Teensy_PP2_ID);
+	}
+	public static MCUBoard teensypp2(String uploadPort) {
+		MCUBoard board = teensypp2();
+		board.myBoardDescriptor.setUploadPort(uploadPort);
+		return board;
 	}
 
 	public static MCUBoard teensy2() {
@@ -115,7 +127,23 @@ public class Teensy extends MCUBoard {
 			if (attribs.midi) {
 				ret.put("usb", "serialmidiaudio");
 			}
+	         if (attribs.rawHID) {
+	                ret.put("usb", "rawhid");
+	            }
 		}
 		return ret;
 	}
+	
+	public static MCUBoard[] getAllBoards() {
+		// hardcode this stuff now because I want to release 4.3.1
+		// shoulds be something like
+		// return
+		// PackageManager.getAllBoardDescriptors(getJsonFileName(),getPackageName(),getPlatformName()
+		// , options);
+		MCUBoard[] boards = { Teensy.Teensy3_6(), Teensy.Teensy3_5(), Teensy.Teensy3_1(), Teensy.Teensy3_0(),
+				Teensy.Teensy_LC(), Teensy.teensypp2(), Teensy.teensy2() };
+		return boards;
+
+
+    }
 }

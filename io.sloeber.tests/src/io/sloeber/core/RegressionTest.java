@@ -18,14 +18,18 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import io.sloeber.core.api.BoardDescriptor;
-import io.sloeber.core.api.PackageManager;
 import io.sloeber.core.api.CodeDescriptor;
 import io.sloeber.core.api.CompileOptions;
 import io.sloeber.core.api.ConfigurationDescriptor;
-import io.sloeber.core.api.SerialManager;
+import io.sloeber.core.api.PackageManager;
+import io.sloeber.core.api.Preferences;
+import io.sloeber.providers.Arduino;
+import io.sloeber.providers.ESP8266;
+import io.sloeber.providers.MCUBoard;
 
 @SuppressWarnings("nls")
 public class RegressionTest {
+	private static final boolean reinstall_boards_and_libraries = false;
 
 	/*
 	 * In new new installations (of the Sloeber development environment) the
@@ -35,38 +39,26 @@ public class RegressionTest {
 	@BeforeClass
 	public static void WaitForInstallerToFinish() {
 		Shared.waitForAllJobsToFinish();
-		SerialManager.stopNetworkScanning();
+		Preferences.setUseBonjour(false);
 		installAdditionalBoards();
 	}
 
 	public static void installAdditionalBoards() {
-		String[] packageUrlsToAdd = { "http://talk2arduino.wisen.com.au/master/package_talk2.wisen.com_index.json" };
-		PackageManager.addPackageURLs(new HashSet<>(Arrays.asList(packageUrlsToAdd)), false);
+
+		String[] packageUrlsToAdd = { ESP8266.packageURL };
+		PackageManager.addPackageURLs(new HashSet<>(Arrays.asList(packageUrlsToAdd)), true);
+		if (reinstall_boards_and_libraries) {
+			PackageManager.removeAllInstalledPlatforms();
+			PackageManager.installAllLatestPlatforms();
+		} else {
+			// make sure esp8266 boards are available
+			ESP8266.installLatest();
+		}
 		if (!MySystem.getTeensyPlatform().isEmpty()) {
 			PackageManager.addPrivateHardwarePath(MySystem.getTeensyPlatform());
 		}
 	}
 
-	/**
-	 * Test wether a platform json redirect is handled properly
-	 * https://github.com/jantje/arduino-eclipse-plugin/issues/393
-	 */
-	@SuppressWarnings("static-method")
-	@Test
-	public void redirectedJson() {
-		//this board references to arduino avr so install that one to
-		PackageManager.installLatestPlatform("package_index.json", "arduino", "Arduino AVR Boards");
-		PackageManager.installLatestPlatform("package_talk2.wisen.com_index.json", "Talk2","Talk2 AVR Boards");
-		Map<String, String> options = new HashMap<>();
-		options.put("mhz", "16MHz");
-		BoardDescriptor boardid = PackageManager.getBoardDescriptor("package_talk2.wisen.com_index.json", "Talk2",
-				"Talk2 AVR Boards", "whispernode", options);
-		if (boardid == null) {
-			fail("redirect Json ");
-			return;
-		}
-		Shared.BuildAndVerify(boardid,CodeDescriptor.createDefaultIno());
-	}
 
 	/**
 	 * make sure when switching between a board with variant file and without
@@ -132,7 +124,7 @@ public class RegressionTest {
 	@SuppressWarnings("static-method")
 	@Test
 	public void issue687() throws Exception {
-		PackageManager.installLatestPlatform("package_index.json", "arduino", "Arduino AVR Boards");
+	    Arduino.installLatestAVRBoards();
 		Map<String, String> unoOptions = new HashMap<>();
 		BoardDescriptor unoBoardid = PackageManager.getBoardDescriptor("package_index.json", "arduino", "Arduino AVR Boards",
 				"uno", unoOptions);
@@ -158,6 +150,39 @@ public class RegressionTest {
 
 	}
 
+	
+	/**
+	 * support void loop{};
+	 * @throws Exception
+	 */
+	@SuppressWarnings("static-method")
+	@Test
+	public void issue1047_Board_Names_Can_Be_used_as_Strings() throws Exception {
+		MCUBoard unoBoard = ESP8266.nodeMCU();
+	
+		String projectName = "issue1047_Board_Names_Can_Be_used_as_Strings";
+		IPath templateFolder = Shared.getTemplateFolder(projectName);
+		CodeDescriptor codeDescriptor = CodeDescriptor.createCustomTemplate(templateFolder);
+		try {
+			IProject theTestProject = unoBoard.getBoardDescriptor().createProject(projectName, null,
+					ConfigurationDescriptor.getDefaultDescriptors(), codeDescriptor, new CompileOptions(null),
+					new NullProgressMonitor());
+			Shared.waitForAllJobsToFinish(); // for the indexer
+			theTestProject.build(IncrementalProjectBuilder.FULL_BUILD, new NullProgressMonitor());
+			if (Shared.hasBuildErrors(theTestProject)) {
+				fail("Failed to compile the project:" + projectName + " issue1047 is not fixed");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Failed to create the project:" + projectName);
+			return;
+		}
+
+	}
+
+	
+	
+	
 	/**
 	 * This test will fail if the arduino compile option are not taken into
 	 * account To do sa a bunch of defines are added to the command line and the
@@ -167,7 +192,7 @@ public class RegressionTest {
 	@SuppressWarnings("static-method")
 	@Test
 	public void are_jantjes_options_taken_into_account() throws Exception {
-		PackageManager.installLatestPlatform("package_index.json", "arduino", "Arduino AVR Boards");
+	    Arduino.installLatestAVRBoards();
 		Map<String, String> unoOptions = new HashMap<>();
 		BoardDescriptor unoBoardid = PackageManager.getBoardDescriptor("package_index.json", "arduino", "Arduino AVR Boards",
 				"uno", unoOptions);
@@ -210,7 +235,7 @@ public class RegressionTest {
 	@SuppressWarnings("static-method")
 	@Test
 	public void are_defines_before_includes_taken_into_account() throws Exception {
-		PackageManager.installLatestPlatform("package_index.json", "arduino", "Arduino AVR Boards");
+	    Arduino.installLatestAVRBoards();
 		Map<String, String> unoOptions = new HashMap<>();
 		BoardDescriptor unoBoardid = PackageManager.getBoardDescriptor("package_index.json", "arduino", "Arduino AVR Boards",
 				"uno", unoOptions);
@@ -247,7 +272,7 @@ public class RegressionTest {
 	@SuppressWarnings("static-method")
 	@Test
 	public void is_extern_C_taken_into_account() throws Exception {
-		PackageManager.installLatestPlatform("package_index.json", "arduino", "Arduino AVR Boards");
+	    Arduino.installLatestAVRBoards();
 		Map<String, String> unoOptions = new HashMap<>();
 		BoardDescriptor unoBoardid = PackageManager.getBoardDescriptor("package_index.json", "arduino", "Arduino AVR Boards",
 				"uno", unoOptions);

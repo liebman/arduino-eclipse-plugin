@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.osgi.service.prefs.BackingStoreException;
 
 import io.sloeber.core.Activator;
+import io.sloeber.core.api.Defaults;
 
 /**
  * Items on the Configuration level are linked to the ConfigurationScope
@@ -209,7 +210,7 @@ public class ConfigurationPreferences {
 	}
 
 	public static boolean getUpdateJasonFilesFlag() {
-		return getBoolean(KEY_UPDATE_JASONS, false);
+		return getBoolean(KEY_UPDATE_JASONS, Defaults.updateJsonFiles);
 	}
 
 	public static void setUpdateJasonFilesFlag(boolean newFlag) {
@@ -255,5 +256,6 @@ public class ConfigurationPreferences {
 		systemHash = hascode.toString();
 		return systemHash;
 	}
+
 
 }

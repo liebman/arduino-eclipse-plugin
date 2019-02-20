@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 import io.sloeber.core.Activator;
-import io.sloeber.core.api.Messages;
+import io.sloeber.core.Messages;
 import io.sloeber.core.common.Common;
 import io.sloeber.core.common.ConfigurationPreferences;
 import io.sloeber.core.common.Const;
@@ -212,7 +212,10 @@ public class ArduinoPlatform {
 		}
 
 		// Download platform archive
-		return InternalPackageManager.downloadAndInstall(this, false, monitor);
+		System.out.println("start installing platform "+name + " "+architecture +"("+version+")");
+		IStatus ret= InternalPackageManager.downloadAndInstall(this, false, monitor);
+		System.out.println("done installing platform "+name + " "+architecture +"("+version+")");
+		return ret;
 
 	}
 
